@@ -14,23 +14,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install Tools
         run: |
           pip install yt-dlp
           sudo apt-get update && sudo apt-get install ffmpeg -y
 
-      - name: Create and Run Scraper
+      - name: Run Scraper
         env:
           VIDEO_URL: ${{ github.event.inputs.video_url }}
         run: |
-          cat << 'EOF' > scraper.py
+          python << 'EOF'
           import yt_dlp
           import os
 
@@ -48,18 +48,14 @@ jobs:
                   ydl.download([url])
               print("Done downloading!")
 
-          if __name__ == "__main__":
-              video_url = os.environ.get('VIDEO_URL')
-              if video_url:
-                  download_data(video_url)
-              else:
-                  print("No URL provided!")
+          video_url = os.environ.get('VIDEO_URL')
+          if video_url:
+              download_data(video_url)
+          else:
+              print("No URL provided!")
           EOF
-          python scraper.py
-name: Attest Build Provenance
-  uses: actions/attest-build-provenance@v4.1.1
-  
-      name: Save Files to Repo
+
+      - name: Save Files to Repo
         run: |
           git config user.name "GitHub Actions Bot"
           git config user.email "actions@github.com"
