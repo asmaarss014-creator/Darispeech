@@ -56,8 +56,10 @@ jobs:
                   print("No URL provided!")
           EOF
           python scraper.py
-
-      - name: Save Files to Repo
+name: Attest Build Provenance
+  uses: actions/attest-build-provenance@v4.1.1
+  
+      name: Save Files to Repo
         run: |
           git config user.name "GitHub Actions Bot"
           git config user.email "actions@github.com"
