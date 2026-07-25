@@ -1,0 +1,37 @@
+name: Dari Data Scraper
+on:
+  workflow_dispatch: # This means it only runs when manually triggered
+    inputs:
+      video_url:
+        description: 'YouTube URL to download'
+        required: true
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest # This is GitHub's free Linux server
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Tools
+        run: |
+          pip install yt-dlp
+          sudo apt-get update && sudo apt-get install ffmpeg -y
+
+      - name: Run Scraper
+        env:
+          VIDEO_URL: ${{ github.event.inputs.video_url }}
+        run: python scraper.py
+
+      - name: Save Files to Repo
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "Auto-scraped Dari data from YouTube"
+          git push
