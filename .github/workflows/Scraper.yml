@@ -1,14 +1,17 @@
 name: Dari Data Scraper
 on:
-  workflow_dispatch: # This means it only runs when manually triggered
+  workflow_dispatch:
     inputs:
       video_url:
         description: 'YouTube URL to download'
         required: true
 
+permissions:
+  contents: write # THIS GIVES THE BOT PERMISSION TO SAVE FILES
+
 jobs:
   scrape:
-    runs-on: ubuntu-latest # This is GitHub's free Linux server
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
