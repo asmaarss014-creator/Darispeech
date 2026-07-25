@@ -7,7 +7,7 @@ on:
         required: true
 
 permissions:
-  contents: write # THIS GIVES THE BOT PERMISSION TO SAVE FILES
+  contents: write
 
 jobs:
   scrape:
@@ -26,10 +26,36 @@ jobs:
           pip install yt-dlp
           sudo apt-get update && sudo apt-get install ffmpeg -y
 
-      - name: Run Scraper
+      - name: Create and Run Scraper
         env:
           VIDEO_URL: ${{ github.event.inputs.video_url }}
-        run: python scraper.py
+        run: |
+          cat << 'EOF' > scraper.py
+          import yt_dlp
+          import os
+
+          def download_data(url):
+              print(f"Downloading {url}...")
+              ydl_opts = {
+                  'format': 'bestaudio/best',
+                  'outtmpl': 'audio_%(id)s.%(ext)s',
+                  'writesubtitles': True,
+                  'writeautomaticsub': True,
+                  'subtitleslangs': ['fa', 'fa-AF', 'prs'],
+                  'subtitlesformat': 'vtt',
+              }
+              with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                  ydl.download([url])
+              print("Done downloading!")
+
+          if __name__ == "__main__":
+              video_url = os.environ.get('VIDEO_URL')
+              if video_url:
+                  download_data(video_url)
+              else:
+                  print("No URL provided!")
+          EOF
+          python scraper.py
 
       - name: Save Files to Repo
         run: |
